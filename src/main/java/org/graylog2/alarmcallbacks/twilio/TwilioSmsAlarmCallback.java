@@ -119,7 +119,7 @@ public class TwilioSmsAlarmCallback implements AlarmCallback {
     @VisibleForTesting
     void call(final Stream stream, final AlertCondition.CheckResult result, final TwilioRestClient twilioClient) {
         try {
-            send(twilioClient, result);
+            send(twilioClient, stream,result);
         } catch (Exception e) {
             LOG.error("Could not send alarm via Twilio SMS", e);
         }
@@ -129,7 +129,7 @@ public class TwilioSmsAlarmCallback implements AlarmCallback {
         return NAME;
     }
 
-    private void send(final TwilioRestClient client, final AlertCondition.CheckResult result)
+    private void send(final TwilioRestClient client, final Stream stream,final AlertCondition.CheckResult result)
             throws TwilioRestException {
         final Account mainAccount = client.getAccount();
         final SmsFactory smsFactory = mainAccount.getSmsFactory();
@@ -137,16 +137,16 @@ public class TwilioSmsAlarmCallback implements AlarmCallback {
         final Map<String, String> smsParams = ImmutableMap.of(
                 "To", configuration.getString(CK_TO_NUMBER),
                 "From", configuration.getString(CK_FROM_NUMBER),
-                "Body", buildMessage(result));
+                "Body", buildMessage(result,stream));
 
         final Sms sms = smsFactory.create(smsParams);
 
         LOG.debug("Sent SMS with status {}: {}", sms.getStatus(), sms.getBody());
     }
 
-    private String buildMessage(final AlertCondition.CheckResult result) {
-        final String msg = "[Graylog] " + result.getResultDescription();
-
+    private String buildMessage(final AlertCondition.CheckResult result,final Stream stream) {
+        //final String msg = "[Graylog] " + result.getResultDescription();
+        final String msg = stream.getTitle();
         return msg.substring(0, min(msg.length(), MAX_MSG_LENGTH));
     }
 }
