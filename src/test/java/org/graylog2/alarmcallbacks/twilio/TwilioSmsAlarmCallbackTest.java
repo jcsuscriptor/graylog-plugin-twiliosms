@@ -110,6 +110,7 @@ public class TwilioSmsAlarmCallbackTest {
     @Test
     public void testTransportAlarm() throws Exception {
         when(mockCheckResult.getResultDescription()).thenReturn("Test");
+        when(mockStream.getTitle()).thenReturn("Test");
 
         transport.initialize(VALID_CONFIGURATION);
         transport.call(mockStream, mockCheckResult, twilioClient);
@@ -117,7 +118,7 @@ public class TwilioSmsAlarmCallbackTest {
         final Map<String, String> expectedParameters = ImmutableMap.of(
                 "To", "TEST_to_number",
                 "From", "TEST_from_number",
-                "Body", "[Graylog] Test"
+                "Body", "Test"
         );
         verify(smsFactory).create(expectedParameters);
     }
@@ -129,13 +130,12 @@ public class TwilioSmsAlarmCallbackTest {
             descriptionBuilder.append("0123456789");
         }
         when(mockCheckResult.getResultDescription()).thenReturn(descriptionBuilder.toString());
+        when(mockStream.getTitle()).thenReturn(descriptionBuilder.toString());
 
         transport.initialize(VALID_CONFIGURATION);
         transport.call(mockStream, mockCheckResult, twilioClient);
 
-        final String expectedBody = "[Graylog] "
-                + "01234567890123456789012345678901234567890123456789012345678901234567890123456789"
-                + "01234567890123456789012345678901234567890123456789";
+        final String expectedBody = "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
 
         final Map<String, String> expectedParameters = ImmutableMap.of(
                 "To", "TEST_to_number",
